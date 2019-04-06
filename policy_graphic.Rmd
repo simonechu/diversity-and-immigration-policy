@@ -8,6 +8,68 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+library(sf)
+library(fs)
+library(ggplot2)
+library(ggthemes)
+library(gganimate)
 library(tidyverse)
+```
+
+### A brief explanation of the project
+
+I plan to compare ethnic diversity of various countries with their immigration policy, because I'm curious to see whether or not ethnic diversity impacts how open a country is to immigration. This graphic deals with one part of the data -- ethnic diversity based on linguistic diversity, courtesy of Ethnologue. 
+
+Later on, I plan to overlay maps with ethnic diversity and the ability to see how open these countries' immigration policies are. But for now: 
+
+```{r, getting_data, include=FALSE, warning=FALSE}
+
+diversity_data <- read_csv("linguistic_diversity.csv")
+
+# policy_data <- read_csv("impic2016.csv") %>%
+#   rename(c("residence_req" = "AvgS_a02",
+#            "family_reunification" = "AvgS_a02",
+#            "min_spouse_age" = "AvgS_a03",
+#            "financial_req" = "AvgS_a04",
+#            "accom_and_language" = "AvgS_a05"))
+
+# Had to rename columns to be more helpful, since they were all very generic and required 
+# looking up in the codebook. Will work on this more later on; there are something like 114
+# columns to rename. 
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+graph_countries <- diversity_data %>%
+  filter(country %in% c("Austria", "Australia", "Belgium", "Canada",
+                        "Switzerland", "Chile", "Czech_Republic", 
+                        "Germany", "Denmark", "Estonia", "Spain",
+                        "Finland", "France", "United_Kingdom", "Greece",
+                        "Hungary", "Ireland", "Israel", "Iceland", 
+                        "Italy", "Japan", "South_Korea", "Mexico",
+                        "Luxembourg", "Netherlands", "Norway", "New_Zealand",
+                        "Poland", "Portugal", "Sweden", "Slovakia",
+                        "Turkey", "United_States")) %>%
+  filter(!is.na(continent)) %>%
+  rename("number" = "count") %>%
+  arrange(desc(number))
+  
+      # These 33 countries are the ones with immigration policy data, so I filtered out the 
+      # rest. 
+  
+ggplot(graph_countries, aes(x = country, y = number, fill = continent, width = 0.4)) +
+  geom_col() +
+  coord_flip() + 
+  ggthemes::theme_economist() + 
+  
+  labs(title = "Number of Languages, by Country",
+       subtitle = "More languages indicate a greater ethnic diversity",
+       caption = "Source: Ethnologue") + 
+    ylab("Number of Unique Languages") + 
+    xlab("Country")
+  
+
+  
 ```
 
