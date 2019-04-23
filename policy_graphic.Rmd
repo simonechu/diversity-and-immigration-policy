@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(sf)
 library(fs)
+library(forcats)
 library(ggplot2)
 library(ggthemes)
 library(gganimate)
@@ -24,7 +25,15 @@ Later on, I plan to overlay maps with ethnic diversity and the ability to see ho
 
 ```{r, getting_data, include=FALSE, warning=FALSE, cache=TRUE}
 
-qog <- read_csv("qog_std_cs_jan18copy.csv") %>%
+qog <- read_csv("qog_std_cs_jan18copy.csv",
+                col_types = cols(
+                   .default = col_character(),
+                   turnout_scale = col_double(),
+                   turnout_score = col_double(),
+                   w_LV = col_double(),
+                   w_RV = col_double(),
+                   final_weight = col_double(),
+                   timestamp = col_datetime(format = ""))) %>%
   select(cname, fe_cultdiv, fe_etfra) %>%
   filter(cname %in% c("Austria", "Australia", "Belgium", "Canada",
                         "Switzerland", "Chile", "Czech Republic",
@@ -44,12 +53,27 @@ qog <- read_csv("qog_std_cs_jan18copy.csv") %>%
     # diversity in Iceland and Luxembourg, I'll be excluding those countries from my analysis 
     # of immigration policy later on. 
   
-  fct_recode(cname, c("France" = "France (1963-)", "South Korea" = "Korea, South"))
+  mutate(cname = fct_recode(cname, "France" = "France (1963-)", "South Korea" = "Korea, South"))
 
     # I don't like the irregularity in the country names, so I recoded the relevant factors. 
 
 policy_data <- read_csv("impic2016.csv") %>%
-  select()
+  select(cntry, cntryID, year, AvgS_a04) %>%
+  mutate(cntry = fct_recode(cntry, "Austria" = "at", "Australia" = "au", "Belgium" = "be",
+                            "Canada" = "ca", "Switzerland" = "ch", "Chile" = "cl",
+                            "Czech Republic" = "cz", "Germany" = "de", "Denmark" = "dk",
+                            "EU Directives" = "eu", "Estonia" = "ee", "EU Regulation" = "er",
+                            "Spain" = "es", "Finland" = "fi", "France" = "fr", 
+                            "United Kingdom" = "gb", "Greece" = "gr", "Hungary" = "hu",
+                            "Ireland" = "ie", "Israel" = "il", "Iceland" = "is",
+                            "Italy" = "it", "Japan" = "jp", "South Korea" = "kr",
+                            "Luxembourg" = "lu", "Mexico" = "mx", "Netherlands" = "nl",
+                            "Norway" = "no", "New Zealand" = "nz", "Poland" = "pl",
+                            "Portugal" = "pt", "Sweden" = "se", "Slovakia" = "sk",
+                            "Turkey" = "tr", "United States" = "us"))
+
+    # Recoded the country names so that I can more easily identify which data goes for each
+    # country. 
 
 ```
 
