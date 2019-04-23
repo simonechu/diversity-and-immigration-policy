@@ -58,7 +58,7 @@ qog <- read_csv("qog_std_cs_jan18copy.csv",
     # I don't like the irregularity in the country names, so I recoded the relevant factors. 
 
 policy_data <- read_csv("impic2016.csv") %>%
-  select(cntry, cntryID, year, AvgS_a04) %>%
+  select(cntry, cntryID, year, AvgS_a04, AvgS_c03, AvgS_d03_1, AvgS_e05, ) %>%
   mutate(cntry = fct_recode(cntry, "Austria" = "at", "Australia" = "au", "Belgium" = "be",
                             "Canada" = "ca", "Switzerland" = "ch", "Chile" = "cl",
                             "Czech Republic" = "cz", "Germany" = "de", "Denmark" = "dk",
@@ -79,47 +79,6 @@ policy_data <- read_csv("impic2016.csv") %>%
 
 ```{r, echo=FALSE, warning=FALSE}
 
-# diversity_data <- read_csv("linguistic_diversity.csv")
-
-# policy_data <- read_csv("impic2016.csv") %>%
-#   rename(c("residence_req" = "AvgS_a02",
-#            "family_reunification" = "AvgS_a02",
-#            "min_spouse_age" = "AvgS_a03",
-#            "financial_req" = "AvgS_a04",
-#            "accom_and_language" = "AvgS_a05"))
-
-# Had to rename columns to be more helpful, since they were all very generic and required 
-# looking up in the codebook. Will work on this more later on; there are something like 114
-# columns to rename. 
-
-# graph_countries <- diversity_data %>%
-#   filter(country %in% c("Austria", "Australia", "Belgium", "Canada",
-#                         "Switzerland", "Chile", "Czech_Republic", 
-#                         "Germany", "Denmark", "Estonia", "Spain",
-#                         "Finland", "France", "United_Kingdom", "Greece",
-#                         "Hungary", "Ireland", "Israel", "Iceland", 
-#                         "Italy", "Japan", "South_Korea", "Mexico",
-#                         "Luxembourg", "Netherlands", "Norway", "New_Zealand",
-#                         "Poland", "Portugal", "Sweden", "Slovakia",
-#                         "Turkey", "United_States")) %>%
-#   filter(!is.na(continent)) %>%
-#   rename("number" = "count") %>%
-#   arrange(desc(number))
-  
-      # These 33 countries are the ones with immigration policy data, so I filtered out the 
-      # rest. 
-  
-# ggplot(graph_countries, aes(x = country, y = number, fill = continent, width = 0.4)) +
-#   geom_col() +
-#   coord_flip() + 
-#   ggthemes::theme_economist() + 
-#   
-#   labs(title = "Number of Languages, by Country",
-#        subtitle = "More languages indicate a greater ethnic diversity",
-#        caption = "Source: Ethnologue") + 
-#     ylab("Number of Unique Languages") + 
-#     xlab("Country")
-#   
 
   
 ```
