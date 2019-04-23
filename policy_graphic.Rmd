@@ -22,9 +22,40 @@ I plan to compare ethnic diversity of various countries with their immigration p
 
 Later on, I plan to overlay maps with ethnic diversity and the ability to see how open these countries' immigration policies are. But for now: 
 
-```{r, getting_data, include=FALSE, warning=FALSE}
+```{r, getting_data, include=FALSE, warning=FALSE, cache=TRUE}
 
-diversity_data <- read_csv("linguistic_diversity.csv")
+qog <- read_csv("qog_std_cs_jan18copy.csv") %>%
+  select(cname, fe_cultdiv, fe_etfra) %>%
+  filter(cname %in% c("Austria", "Australia", "Belgium", "Canada",
+                        "Switzerland", "Chile", "Czech Republic",
+                        "Germany", "Denmark", "Estonia", "Spain",
+                        "Finland", "France (1963-)", "United Kingdom", "Greece",
+                        "Hungary", "Ireland", "Israel", "Iceland",
+                        "Italy", "Japan", "Korea, South", "Mexico",
+                        "Luxembourg", "Netherlands", "Norway", "New Zealand",
+                        "Poland", "Portugal", "Sweden", "Slovakia",
+                        "Turkey", "United States")) %>%
+
+    # I filtered for the 33 countries that have data in the IMPIC dataset. It took a little bit
+    # of trial and error, because the names of countries were denoted differently in this dataset
+    # than in the IMPIC dataset, but I eventually found the ones I wanted. 
+
+    # However, because the Qualities of Governent dataset doesn't have information on ethnic
+    # diversity in Iceland and Luxembourg, I'll be excluding those countries from my analysis 
+    # of immigration policy later on. 
+  
+  fct_recode(cname, c("France" = "France (1963-)", "South Korea" = "Korea, South"))
+
+    # I don't like the irregularity in the country names, so I recoded the relevant factors. 
+
+policy_data <- read_csv("impic2016.csv") %>%
+  select()
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
+# diversity_data <- read_csv("linguistic_diversity.csv")
 
 # policy_data <- read_csv("impic2016.csv") %>%
 #   rename(c("residence_req" = "AvgS_a02",
@@ -37,38 +68,34 @@ diversity_data <- read_csv("linguistic_diversity.csv")
 # looking up in the codebook. Will work on this more later on; there are something like 114
 # columns to rename. 
 
-```
-
-```{r, echo=FALSE, warning=FALSE}
-
-graph_countries <- diversity_data %>%
-  filter(country %in% c("Austria", "Australia", "Belgium", "Canada",
-                        "Switzerland", "Chile", "Czech_Republic", 
-                        "Germany", "Denmark", "Estonia", "Spain",
-                        "Finland", "France", "United_Kingdom", "Greece",
-                        "Hungary", "Ireland", "Israel", "Iceland", 
-                        "Italy", "Japan", "South_Korea", "Mexico",
-                        "Luxembourg", "Netherlands", "Norway", "New_Zealand",
-                        "Poland", "Portugal", "Sweden", "Slovakia",
-                        "Turkey", "United_States")) %>%
-  filter(!is.na(continent)) %>%
-  rename("number" = "count") %>%
-  arrange(desc(number))
+# graph_countries <- diversity_data %>%
+#   filter(country %in% c("Austria", "Australia", "Belgium", "Canada",
+#                         "Switzerland", "Chile", "Czech_Republic", 
+#                         "Germany", "Denmark", "Estonia", "Spain",
+#                         "Finland", "France", "United_Kingdom", "Greece",
+#                         "Hungary", "Ireland", "Israel", "Iceland", 
+#                         "Italy", "Japan", "South_Korea", "Mexico",
+#                         "Luxembourg", "Netherlands", "Norway", "New_Zealand",
+#                         "Poland", "Portugal", "Sweden", "Slovakia",
+#                         "Turkey", "United_States")) %>%
+#   filter(!is.na(continent)) %>%
+#   rename("number" = "count") %>%
+#   arrange(desc(number))
   
       # These 33 countries are the ones with immigration policy data, so I filtered out the 
       # rest. 
   
-ggplot(graph_countries, aes(x = country, y = number, fill = continent, width = 0.4)) +
-  geom_col() +
-  coord_flip() + 
-  ggthemes::theme_economist() + 
-  
-  labs(title = "Number of Languages, by Country",
-       subtitle = "More languages indicate a greater ethnic diversity",
-       caption = "Source: Ethnologue") + 
-    ylab("Number of Unique Languages") + 
-    xlab("Country")
-  
+# ggplot(graph_countries, aes(x = country, y = number, fill = continent, width = 0.4)) +
+#   geom_col() +
+#   coord_flip() + 
+#   ggthemes::theme_economist() + 
+#   
+#   labs(title = "Number of Languages, by Country",
+#        subtitle = "More languages indicate a greater ethnic diversity",
+#        caption = "Source: Ethnologue") + 
+#     ylab("Number of Unique Languages") + 
+#     xlab("Country")
+#   
 
   
 ```
