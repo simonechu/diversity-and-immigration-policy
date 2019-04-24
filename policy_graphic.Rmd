@@ -53,9 +53,16 @@ qog <- read_csv("qog_std_cs_jan18copy.csv",
     # diversity in Iceland and Luxembourg, I'll be excluding those countries from my analysis 
     # of immigration policy later on. 
   
-  mutate(cname = fct_recode(cname, "France" = "France (1963-)", "South Korea" = "Korea, South"))
+  mutate(cname = fct_recode(cname, "France" = "France (1963-)", "South Korea" = "Korea, South")) %>%
 
     # I don't like the irregularity in the country names, so I recoded the relevant factors. 
+
+  mutate(wdi_migration = as.numeric(wdi_migration),
+         unna_gdppc = as.numeric(unna_gdppc),
+         fe_cultdiv = as.numeric(fe_cultdiv),
+         fe_etfra = as.numeric(fe_etfra))
+
+    # When I first tried to plot this, the graph looked weird -- and that's when I realized all the columns were characters instead of numbers. Wild. 
 
 policy_data <- read_csv("impic2016.csv") %>%
   select(cntry, cntryID, year, AvgS_a04, AvgS_c03, AvgS_d03_1, AvgS_e05, AvgS_e04) %>%
@@ -89,6 +96,20 @@ world_map <- read_sf("TM_WORLD_BORDERS_SIMPL-0.3.shp")
 
   
 ```
+
+```{r gdp_vs_immigration, echo=FALSE, message=FALSE}
+
+ggplot(qog, aes(x = fe_etfra, y = wdi_migration)) + 
+  geom_point() +
+  scale_y_continuous() + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+fit = lm(wdi_migration ~ unna_gdppc, qog)
+summary(fit)
+
+```
+
 
 ```{r}
 ggplot(world_map) + 
