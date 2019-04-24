@@ -34,7 +34,7 @@ qog <- read_csv("qog_std_cs_jan18copy.csv",
                    w_RV = col_double(),
                    final_weight = col_double(),
                    timestamp = col_datetime(format = ""))) %>%
-  select(cname, fe_cultdiv, fe_etfra) %>%
+  select(cname, fe_cultdiv, fe_etfra, wdi_migration, unna_gdppc) %>%
   filter(cname %in% c("Austria", "Australia", "Belgium", "Canada",
                         "Switzerland", "Chile", "Czech Republic",
                         "Germany", "Denmark", "Estonia", "Spain",
@@ -58,7 +58,7 @@ qog <- read_csv("qog_std_cs_jan18copy.csv",
     # I don't like the irregularity in the country names, so I recoded the relevant factors. 
 
 policy_data <- read_csv("impic2016.csv") %>%
-  select(cntry, cntryID, year, AvgS_a04, AvgS_c03, AvgS_d03_1, AvgS_e05, ) %>%
+  select(cntry, cntryID, year, AvgS_a04, AvgS_c03, AvgS_d03_1, AvgS_e05, AvgS_e04) %>%
   mutate(cntry = fct_recode(cntry, "Austria" = "at", "Australia" = "au", "Belgium" = "be",
                             "Canada" = "ca", "Switzerland" = "ch", "Chile" = "cl",
                             "Czech Republic" = "cz", "Germany" = "de", "Denmark" = "dk",
@@ -77,9 +77,24 @@ policy_data <- read_csv("impic2016.csv") %>%
 
 ```
 
-```{r, echo=FALSE, warning=FALSE}
+```{r map_files, echo=FALSE, warning=FALSE}
+# Getting map of the whole world, downloaded from  
+#http://thematicmapping.org/downloads/world_borders.php : 
 
+unzip("TM_WORLD_BORDERS_SIMPL-0.3.zip") 
+
+world_map <- read_sf("TM_WORLD_BORDERS_SIMPL-0.3.shp")
+
+# https://gadm.org/data.html 
 
   
+```
+
+```{r}
+ggplot(world_map) + 
+  geom_sf() + 
+  theme_light()
+
+
 ```
 
