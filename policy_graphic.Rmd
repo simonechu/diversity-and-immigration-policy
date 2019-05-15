@@ -82,40 +82,38 @@ policy_data <- read_csv("impic2016.csv") %>%
     # Recoded the country names so that I can more easily identify which data goes for each
     # country. 
 
-```
+cia <- read_csv("cia_ethnicgroups.csv")
 
-```{r map_files, echo=FALSE, warning=FALSE}
-# Getting map of the whole world, downloaded from  
-#http://thematicmapping.org/downloads/world_borders.php : 
-
-unzip("TM_WORLD_BORDERS_SIMPL-0.3.zip") 
-
-world_map <- read_sf("TM_WORLD_BORDERS_SIMPL-0.3.shp")
-
-# https://gadm.org/data.html 
-
-  
+diversity <- inner_join(qog, cia, by = "cname")
 ```
 
 ```{r gdp_vs_immigration, echo=FALSE, message=FALSE}
 
-ggplot(qog, aes(x = fe_etfra, y = wdi_migration)) + 
+ggplot(qog, aes(x = fe_etfra, y = unna_gdppc)) + 
   geom_point() +
   scale_y_continuous() + 
   theme_light() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-fit = lm(wdi_migration ~ unna_gdppc, qog)
+fit = lm(wdi_migration ~ fe_etfra, qog)
 summary(fit)
 
 ```
 
 
-```{r}
-ggplot(world_map) + 
-  geom_sf() + 
-  theme_light()
 
+```{r map_files, echo=FALSE, warning=FALSE}
+# Getting map of the whole world, downloaded from  
+#http://thematicmapping.org/downloads/world_borders.php : 
 
+# unzip("TM_WORLD_BORDERS_SIMPL-0.3.zip") 
+# 
+# world_map <- read_sf("TM_WORLD_BORDERS_SIMPL-0.3.shp")
+
+# https://gadm.org/data.html 
+
+# ggplot(world_map) + 
+#   geom_sf() + 
+#   theme_light()  
 ```
 
