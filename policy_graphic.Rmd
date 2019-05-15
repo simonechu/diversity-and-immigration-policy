@@ -14,6 +14,8 @@ library(forcats)
 library(ggplot2)
 library(ggthemes)
 library(gganimate)
+library(gt)
+library(grDevices)
 library(tidyverse)
 ```
 
@@ -34,7 +36,7 @@ qog <- read_csv("qog_std_cs_jan18copy.csv",
                    w_RV = col_double(),
                    final_weight = col_double(),
                    timestamp = col_datetime(format = ""))) %>%
-  select(cname, fe_cultdiv, fe_etfra, wdi_migration, unna_gdppc) %>%
+  select(cname, fe_cultdiv, wdi_migration, unna_gdppc) %>%
   filter(cname %in% c("Austria", "Australia", "Belgium", "Canada",
                         "Switzerland", "Chile", "Czech Republic",
                         "Germany", "Denmark", "Estonia", "Spain",
@@ -59,13 +61,12 @@ qog <- read_csv("qog_std_cs_jan18copy.csv",
 
   mutate(wdi_migration = as.numeric(wdi_migration),
          unna_gdppc = as.numeric(unna_gdppc),
-         fe_cultdiv = as.numeric(fe_cultdiv),
-         fe_etfra = as.numeric(fe_etfra))
+         fe_cultdiv = as.numeric(fe_cultdiv))
 
     # When I first tried to plot this, the graph looked weird -- and that's when I realized all the columns were characters instead of numbers. Wild. 
 
 policy_data <- read_csv("impic2016.csv") %>%
-  select(cntry, cntryID, year, AvgS_a04, AvgS_c03, AvgS_d03_1, AvgS_e05, AvgS_e04, AvgS_ImmPol) %>%
+  select(cntry, year, AvgS_ImmPol) %>%
   mutate(cntry = fct_recode(cntry, "Austria" = "at", "Australia" = "au", "Belgium" = "be",
                             "Canada" = "ca", "Switzerland" = "ch", "Chile" = "cl",
                             "Czech Republic" = "cz", "Germany" = "de", "Denmark" = "dk",
@@ -84,21 +85,65 @@ policy_data <- read_csv("impic2016.csv") %>%
 
 cia <- read_csv("cia_ethnicgroups.csv")
 
+    # I then joined the data from the CIA factbook with the QoG dataset. 
+
 diversity <- inner_join(qog, cia, by = "cname")
 
+    # And then joined all the datasets together. 
+
 all_data <- inner_join(diversity, policy_data, by = c("cname" = "cntry"))
+
+    # I filtered out the countries that I was not able to find 
+
+
+
+# Notes to self: make table of CIA diversity data
+# figure out a way to make scatter plot better
+# run regressions (sample by year?) 
 ```
 
-```{r gdp_vs_immigration, echo=FALSE, message=FALSE}
+```{r hist}
+ggplot(cia, aes(x = largest_group)) + 
+  geom_histogram(breaks = seq(0,1, by = 0.01))
 
-ggplot(all_data, aes(x = largest_group, y = AvgS_ImmPol, color = year)) + 
+```
+
+
+
+```{r}
+
+for_table <- cia %>%
+  select(cname, largest_group) %>%
+  filter(!is.na(largest_group)) %>%
+  gt() %>%
+    tab_header(title = "Size of Dominant Ethnic Groups",
+             subtitle = "Percentages reflect how much of the population the dominant ethnic group represents.") %>%
+    cols_label(cname = "Country", largest_group = "Size of Dominant Ethnic Group") %>%
+    fmt_percent(columns = vars(largest_group),
+                 decimals = 1) %>%
+  tab_source_note(md("*Data from the CIA World Factbook.*"))
+
+for_table
+
+```
+
+
+
+```{r gdp_vs_immigration, echo=FALSE, message=FALSE}
+test <- all_data %>%
+  filter(year == 2010)
+
+ggplot(test, aes(x = largest_group, y = AvgS_ImmPol)) + 
   geom_point() +
-  scale_y_continuous() + 
-  theme_light() 
+  scale_y_continuous() +
+  xlab("% of Country Composed of Majority Ethnic Group") + 
+  ylab("Summary Immigration Policy Score") + 
+  labs(title = "Ethnic Composition vs. Summary Immigration Policy Score")
   # theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-fit = lm(AvgS_ImmPol ~ largest_group, all_data)
+fit = lm(AvgS_ImmPol ~ largest_group, test)
 summary(fit)
+plot(fit)
 
 ```
 
