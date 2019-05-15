@@ -65,7 +65,7 @@ qog <- read_csv("qog_std_cs_jan18copy.csv",
     # When I first tried to plot this, the graph looked weird -- and that's when I realized all the columns were characters instead of numbers. Wild. 
 
 policy_data <- read_csv("impic2016.csv") %>%
-  select(cntry, cntryID, year, AvgS_a04, AvgS_c03, AvgS_d03_1, AvgS_e05, AvgS_e04) %>%
+  select(cntry, cntryID, year, AvgS_a04, AvgS_c03, AvgS_d03_1, AvgS_e05, AvgS_e04, AvgS_ImmPol) %>%
   mutate(cntry = fct_recode(cntry, "Austria" = "at", "Australia" = "au", "Belgium" = "be",
                             "Canada" = "ca", "Switzerland" = "ch", "Chile" = "cl",
                             "Czech Republic" = "cz", "Germany" = "de", "Denmark" = "dk",
@@ -85,17 +85,19 @@ policy_data <- read_csv("impic2016.csv") %>%
 cia <- read_csv("cia_ethnicgroups.csv")
 
 diversity <- inner_join(qog, cia, by = "cname")
+
+all_data <- inner_join(diversity, policy_data, by = c("cname" = "cntry"))
 ```
 
 ```{r gdp_vs_immigration, echo=FALSE, message=FALSE}
 
-ggplot(qog, aes(x = fe_etfra, y = unna_gdppc)) + 
+ggplot(all_data, aes(x = largest_group, y = AvgS_ImmPol, color = year)) + 
   geom_point() +
   scale_y_continuous() + 
-  theme_light() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme_light() 
+  # theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-fit = lm(wdi_migration ~ fe_etfra, qog)
+fit = lm(AvgS_ImmPol ~ largest_group, all_data)
 summary(fit)
 
 ```
