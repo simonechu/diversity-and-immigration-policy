@@ -93,7 +93,7 @@ diversity <- inner_join(qog, cia, by = "cname")
 
 all_data <- inner_join(diversity, policy_data, by = c("cname" = "cntry"))
 
-    # I filtered out the countries that I was not able to find 
+    # I filtered out the countries that I was not able to find
 
 
 
@@ -103,8 +103,15 @@ all_data <- inner_join(diversity, policy_data, by = c("cname" = "cntry"))
 ```
 
 ```{r hist}
-ggplot(cia, aes(x = largest_group)) + 
-  geom_histogram(breaks = seq(0,1, by = 0.01))
+all_data %>%
+  select(cname, AvgS_ImmPol, year, largest_group) %>%
+  filter(year == 2008) %>%
+  filter(!is.na(largest_group)) %>%
+  arrange(cname) %>% 
+  select(-cname, -year, -largest_group)
+
+# ggplot(cia, aes(x = largest_group)) + 
+#   geom_histogram(breaks = seq(0,1, by = 0.01))
 
 ```
 
@@ -142,6 +149,20 @@ ggplot(test, aes(x = largest_group, y = AvgS_ImmPol)) +
   # theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 fit = lm(AvgS_ImmPol ~ largest_group, test)
+summary(fit)
+plot(fit)
+
+```
+```{r change_over_time, message=FALSE, warning=FALSE}
+mig_change <- read_csv("migration_and_change.csv") %>%
+  select(-X6, -X7, -X8) %>%
+  mutate(change = year_after - year_before)
+
+mig_change %>%
+  ggplot(aes(x = migration, y = change)) + 
+  geom_point()
+
+fit = lm(change ~ migration, mig_change)
 summary(fit)
 plot(fit)
 
